@@ -49,6 +49,7 @@ from io import BytesIO # Manipulate bytes data in memory
 from PIL import Image # Python Imaging Library's (PIL's) Image module
 import configparser # Parsing shared configuration file(s)
 import autodrive_f1tenth.config as config # AutoDRIVE Ecosystem ROS 2 configuration for F1TENTH vehicle
+import math
 
 ################################################################################
 
@@ -117,13 +118,13 @@ def create_laser_scan_msg(lidar_scan_rate, lidar_range_array, lidar_intensity_ar
     ls.header = Header()
     ls.header.stamp = autodrive_incoming_bridge.get_clock().now().to_msg()
     ls.header.frame_id = 'lidar'
-    ls.angle_min = -2.35619 # Minimum angle of laser scan (0 degrees)
-    ls.angle_max = 2.35619 # Maximum angle of laser scan (270 degrees)
-    ls.angle_increment = 0.004363323 # Angular resolution of laser scan (0.25 degree)
+    ls.angle_min = -3 * np.pi / 4 # Minimum angle of laser scan (135 degrees)
+    ls.angle_max = 3 * np.pi / 4 # Maximum angle of laser scan (-135 degrees)
+    ls.angle_increment = (ls.angle_max - ls.angle_min) / (len(lidar_range_array) - 1) if len(lidar_range_array) > 1 else 0.0 # Angular resolution
     ls.time_increment = (1 / lidar_scan_rate) / 360 # Time required to scan 1 degree
     ls.scan_time = ls.time_increment * 360 # Time required to complete a scan of 360 degrees
-    ls.range_min = 0.06 # Minimum sensor range (in meters)
-    ls.range_max = 10.0 # Maximum sensor range (in meters)
+    ls.range_min = 0.0 # Minimum sensor range (in meters)
+    ls.range_max = 20.0 # Maximum sensor range (in meters)
     ls.ranges = lidar_range_array
     ls.intensities = lidar_intensity_array
     return ls
@@ -231,17 +232,17 @@ def bridge(sid, data):
         linear_acceleration = np.fromstring(data["V1 Linear Acceleration"], dtype=float, sep=' ')
         publish_imu_data(orientation_quaternion, angular_velocity, linear_acceleration)
         # Cooordinate transforms
-        broadcast_transform("f1tenth_1", "map", position, orientation_quaternion) # Vehicle frame defined at center of rear axle
-        broadcast_transform("left_encoder", "f1tenth_1", np.asarray([0.0, 0.118, 0.0]), quaternion_from_euler(0.0, 120*encoder_angles[0]%6.283, 0.0))
-        broadcast_transform("right_encoder", "f1tenth_1", np.asarray([0.0, -0.118, 0.0]), quaternion_from_euler(0.0, 120*encoder_angles[1]%6.283, 0.0))
-        broadcast_transform("ips", "f1tenth_1", np.asarray([0.08, 0.0, 0.055]), np.asarray([0.0, 0.0, 0.0, 1.0]))
-        broadcast_transform("imu", "f1tenth_1", np.asarray([0.08, 0.0, 0.055]), np.asarray([0.0, 0.0, 0.0, 1.0]))
-        broadcast_transform("lidar", "f1tenth_1", np.asarray([0.2733, 0.0, 0.096]), np.asarray([0.0, 0.0, 0.0, 1.0]))
-        broadcast_transform("front_camera", "f1tenth_1", np.asarray([-0.015, 0.0, 0.15]), np.asarray([0, 0.0871557, 0, 0.9961947]))
-        broadcast_transform("front_left_wheel", "f1tenth_1", np.asarray([0.33, 0.118, 0.0]), quaternion_from_euler(0.0, 0.0, np.arctan((2*0.141537*np.tan(steering))/(2*0.141537-2*0.0765*np.tan(steering)))))
-        broadcast_transform("front_right_wheel", "f1tenth_1", np.asarray([0.33, -0.118, 0.0]), quaternion_from_euler(0.0, 0.0, np.arctan((2*0.141537*np.tan(steering))/(2*0.141537+2*0.0765*np.tan(steering)))))
-        broadcast_transform("rear_left_wheel", "f1tenth_1", np.asarray([0.0, 0.118, 0.0]), quaternion_from_euler(0.0, encoder_angles[0]%6.283, 0.0))
-        broadcast_transform("rear_right_wheel", "f1tenth_1", np.asarray([0.0, -0.118, 0.0]), quaternion_from_euler(0.0, encoder_angles[1]%6.283, 0.0))
+        broadcast_transform("base_footprint", "odom", position, orientation_quaternion) # Vehicle frame defined at center of rear axle
+        broadcast_transform("left_encoder", "base_footprint", np.asarray([0.0, 0.118, 0.0]), quaternion_from_euler(0.0, 120*encoder_angles[0]%6.283, 0.0))
+        broadcast_transform("right_encoder", "base_footprint", np.asarray([0.0, -0.118, 0.0]), quaternion_from_euler(0.0, 120*encoder_angles[1]%6.283, 0.0))
+        broadcast_transform("ips", "base_footprint", np.asarray([0.08, 0.0, 0.055]), np.asarray([0.0, 0.0, 0.0, 1.0]))
+        broadcast_transform("imu", "base_footprint", np.asarray([0.08, 0.0, 0.055]), np.asarray([0.0, 0.0, 0.0, 1.0]))
+        broadcast_transform("lidar", "base_footprint", np.asarray([0.2733, 0.0, 0.096]), np.asarray([0.0, 0.0, 0.0, 1.0]))
+        broadcast_transform("front_camera", "base_footprint", np.asarray([-0.015, 0.0, 0.15]), np.asarray([0, 0.0871557, 0, 0.9961947]))
+        broadcast_transform("front_left_wheel", "base_footprint", np.asarray([0.33, 0.118, 0.0]), quaternion_from_euler(0.0, 0.0, np.arctan((2*0.141537*np.tan(steering))/(2*0.141537-2*0.0765*np.tan(steering)))))
+        broadcast_transform("front_right_wheel", "base_footprint", np.asarray([0.33, -0.118, 0.0]), quaternion_from_euler(0.0, 0.0, np.arctan((2*0.141537*np.tan(steering))/(2*0.141537+2*0.0765*np.tan(steering)))))
+        broadcast_transform("rear_left_wheel", "base_footprint", np.asarray([0.0, 0.118, 0.0]), quaternion_from_euler(0.0, encoder_angles[0]%6.283, 0.0))
+        broadcast_transform("rear_right_wheel", "base_footprint", np.asarray([0.0, -0.118, 0.0]), quaternion_from_euler(0.0, encoder_angles[1]%6.283, 0.0))
         # LIDAR
         lidar_scan_rate = float(data["V1 LIDAR Scan Rate"])
         lidar_range_array = np.fromstring(data["V1 LIDAR Range Array"], dtype=float, sep=' ')

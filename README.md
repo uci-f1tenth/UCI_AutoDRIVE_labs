@@ -73,3 +73,21 @@ While `example_f1tenth.py` is running, open the AutoDRIVE application. Then clic
 ![AutoDRIVE buttons](images/AutoDRIVE_buttons.png "AutoDRIVE buttons")
 
 Your car should now be driving forward automatically!
+
+## ROS Setup
+
+```bash
+source autodrive_f1tenth/install/setup.bash && source /opt/ros/kilted/setup.bash
+cd autodrive_f1tenth && colcon build && cd ..
+ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py
+```
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+ros2 launch foxglove_bridge foxglove_bridge_launch.xml
+```
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_online_async.yaml
+```
