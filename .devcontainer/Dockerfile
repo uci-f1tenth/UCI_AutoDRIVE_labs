@@ -1,0 +1,5 @@
+FROM docker.io/ros:kilted-ros-base
+
+RUN sudo apt-get update
+RUN sudo apt-get install -y ros-$ROS_DISTRO-foxglove-bridge ros-$ROS_DISTRO-slam-toolbox ros-$ROS_DISTRO-tf-transformations ros-$ROS_DISTRO-cv-bridge python3-pip
+RUN pip3 install eventlet==0.33.3 Flask==1.1.1 Flask-SocketIO==4.1.0 gevent-websocket==0.10.1 itsdangerous==2.0.1 werkzeug==2.0.3 transforms3d pillow --break-system-packages

@@ -1,0 +1,15 @@
+{
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "-p",
+        "8765:8765",
+        "-p",
+        "4567:4567"
+    ],
+    "forwardPorts": [
+        8765,
+        4567
+    ]
+}
