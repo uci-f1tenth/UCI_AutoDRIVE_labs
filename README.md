@@ -77,7 +77,7 @@ Your car should now be driving forward automatically!
 ## ROS Setup
 First, install the [devcontainer extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) on vscode. 
 
-Next, install some form of docker engine. I recommend [Orbstack](https://docs.orbstack.dev/install) on macos for great performance. Docker desktop is also a solid tried-and-true choice on both [windows](https://docs.docker.com/desktop/setup/install/windows-install/) and [linux](https://docs.docker.com/desktop/setup/install/linux/).
+Next, install some form of docker engine. I recommend [Orbstack](https://docs.orbstack.dev/install) on macos for great performance. Docker desktop is also a solid tried-and-true choice on [linux](https://docs.docker.com/desktop/setup/install/linux/). Finally, on windows, please don't install anything, WSL will automatically install itself after a prompt on the next step.
 
 Then open this repository in vscode, and open the command palette (command+shift+p). Select "Dev Containers: Rebuild and Reopen in Container." This will automatically build the docker container and open in in vscode.
 
@@ -115,6 +115,6 @@ Then, open [foxglove](https://foxglove.dev) in a chromium based browser (such as
 
 Leave the defaults, and follow the prompts (you may need to enable unsafe scripts on some browsers).
 
-Finally, open Foxglove, and toggle the visability on the topcs you want to see (such as /map). You should now be able to see the car and the slam map!
+Finally, open Foxglove, and toggle the visibility on the topcs you want to see (such as /map). You should now be able to see the car and the slam map!
 
 ![slam](images/slam.png "slam")
