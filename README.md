@@ -75,6 +75,15 @@ While `example_f1tenth.py` is running, open the AutoDRIVE application. Then clic
 Your car should now be driving forward automatically!
 
 ## ROS Setup
+First, install the [devcontainer extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) on vscode. 
+
+Next, install some form of docker engine. I recommend [Orbstack](https://docs.orbstack.dev/install) on macos for great performance. Docker desktop is also a solid tried-and-true choice on both [windows](https://docs.docker.com/desktop/setup/install/windows-install/) and [linux](https://docs.docker.com/desktop/setup/install/linux/).
+
+Then open this repository in vscode, and open the command palette (command+shift+p). Select "Dev Containers: Rebuild and Reopen in Container." This will automatically build the docker container and open in in vscode.
+
+Then, run the following commands, each in a different vscode terminal session, so they are all running at once in the vscode devcontainer:
+
+### Run ros_bridge
 
 ```bash
 source autodrive_f1tenth/install/setup.bash && source /opt/ros/kilted/setup.bash
@@ -82,12 +91,30 @@ cd autodrive_f1tenth && colcon build && cd ..
 ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py
 ```
 
+### Run Foxglove
+
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
+### Run slam_toolbox
+
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_online_async.yaml
 ```
+
+Then, open the AutoDRIVE Simulator, and click "Connect". The terminal session running `ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py` should say "Connected".
+
+Then, make an account on [foxglove](https://foxglove.dev). Details of your sign up (such as which organization name) don't matter, you can just pick F1t@UCI (for example).
+
+Then, open [foxglove](https://foxglove.dev) in a chromium based browser (such as google chrome), and click open connection:
+
+![foxglove open connection](images/foxglove_open_connection.png "foxglove open connection")
+
+Leave the defaults, and follow the prompts (you may need to enable unsafe scripts on some browsers).
+
+Finally, open Foxglove, and toggle the visability on the topcs you want to see (such as /map). You should now be able to see the car and the slam map!
+
+![slam](images/slam.png "slam")
