@@ -77,7 +77,7 @@ Your car should now be driving forward automatically!
 ## ROS Setup
 First, install the [devcontainer extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) on vscode. 
 
-Next, install some form of docker engine. I recommend [Orbstack](https://docs.orbstack.dev/install) on macos for great performance. Docker desktop is also a solid tried-and-true choice on [linux](https://docs.docker.com/desktop/setup/install/linux/). Finally, on windows, please don't install anything, WSL will automatically install itself after a prompt on the next step.
+Next, install some form of docker engine. I recommend [Orbstack](https://orbstack.dev/download) on macos for great performance. Docker desktop is also a solid tried-and-true choice on [linux](https://docs.docker.com/desktop/setup/install/linux/). Finally, on windows, please don't install anything, WSL will automatically install itself after a prompt on the next step.
 
 Then open this repository in vscode, and open the command palette (command+shift+p). Select "Dev Containers: Rebuild and Reopen in Container." This will automatically build the docker container and open in in vscode.
 
