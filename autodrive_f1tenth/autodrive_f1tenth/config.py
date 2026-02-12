@@ -29,34 +29,97 @@
 ################################################################################
 
 # ROS 2 module imports
-from std_msgs.msg import Int32, Float32 # Int32 and Float32 message classes
-from geometry_msgs.msg import Point # Point message class
-from sensor_msgs.msg import JointState, Imu, LaserScan, Image # JointState, Imu, LaserScan and Image message classes
+from std_msgs.msg import Int32, Float32  # Int32 and Float32 message classes
+from geometry_msgs.msg import Point  # Point message class
+from sensor_msgs.msg import (
+    JointState,
+    Imu,
+    LaserScan,
+    Image,
+)  # JointState, Imu, LaserScan and Image message classes
+
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+        for key, value in list(self.items()):
+            if isinstance(value, dict) and not isinstance(value, AttrDict):
+                self[key] = AttrDict(value)
+            elif isinstance(value, list):
+                self[key] = [
+                    AttrDict(item) if isinstance(item, dict) and not isinstance(item, AttrDict) else item
+                    for item in value
+                ]
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name) from None
+
+    def __setattr__(self, name, value):
+        self[name] = value
+
 
 ################################################################################
 
 # ROS 2 publishers and subscribers
-pub_sub_dict = {
-    'subscribers': [
-        # Vehicle data subscribers
-        {'topic':'/autodrive/f1tenth_1/throttle_command', 'type': Float32, 'name': 'sub_throttle_command'},
-        {'topic':'/autodrive/f1tenth_1/steering_command', 'type': Float32, 'name': 'sub_steering_command'}
-    ],
-    'publishers': [
-        # Vehicle data publishers
-        {'topic': '/autodrive/f1tenth_1/throttle', 'type': Float32, 'name': 'pub_throttle'},
-        {'topic': '/autodrive/f1tenth_1/steering', 'type': Float32, 'name': 'pub_steering'},
-        {'topic': '/autodrive/f1tenth_1/left_encoder', 'type': JointState, 'name': 'pub_left_encoder'},
-        {'topic': '/autodrive/f1tenth_1/right_encoder', 'type': JointState, 'name': 'pub_right_encoder'},
-        {'topic': '/autodrive/f1tenth_1/ips', 'type': Point, 'name': 'pub_ips'},
-        {'topic': '/autodrive/f1tenth_1/imu', 'type': Imu, 'name': 'pub_imu'},
-        {'topic': '/autodrive/f1tenth_1/lidar', 'type': LaserScan, 'name': 'pub_lidar'},
-        {'topic': '/autodrive/f1tenth_1/front_camera', 'type': Image, 'name': 'pub_front_camera'},
-    ]
-}
+pub_sub_dict = AttrDict(
+    {
+        "subscribers": [
+            # Vehicle data subscribers
+            {
+                "topic": "/autodrive/f1tenth_1/throttle_command",
+                "type": Float32,
+                "name": "sub_throttle_command",
+            },
+            {
+                "topic": "/autodrive/f1tenth_1/steering_command",
+                "type": Float32,
+                "name": "sub_steering_command",
+            },
+        ],
+        "publishers": [
+            # Vehicle data publishers
+            {
+                "topic": "/autodrive/f1tenth_1/throttle",
+                "type": Float32,
+                "name": "pub_throttle",
+            },
+            {
+                "topic": "/autodrive/f1tenth_1/steering",
+                "type": Float32,
+                "name": "pub_steering",
+            },
+            {
+                "topic": "/autodrive/f1tenth_1/left_encoder",
+                "type": JointState,
+                "name": "pub_left_encoder",
+            },
+            {
+                "topic": "/autodrive/f1tenth_1/right_encoder",
+                "type": JointState,
+                "name": "pub_right_encoder",
+            },
+            {"topic": "/autodrive/f1tenth_1/ips", "type": Point, "name": "pub_ips"},
+            {"topic": "/autodrive/f1tenth_1/imu", "type": Imu, "name": "pub_imu"},
+            {
+                "topic": "/autodrive/f1tenth_1/lidar",
+                "type": LaserScan,
+                "name": "pub_lidar",
+            },
+            {
+                "topic": "/autodrive/f1tenth_1/front_camera",
+                "type": Image,
+                "name": "pub_front_camera",
+            },
+        ],
+    }
+)
 
 ################################################################################
 
 # Initialize vehicle control commands
-throttle_command = 0.0 # [-1, 1]
-steering_command = 0.0 # [-1, 1]
+throttle_command = 0.0  # [-1, 1]
+steering_command = 0.0  # [-1, 1]

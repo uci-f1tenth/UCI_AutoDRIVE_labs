@@ -10,9 +10,9 @@ slam_toolbox:
     ceres_loss_function: None
 
     # ROS Parameters
-    odom_frame: odom
-    map_frame: map
-    base_frame: base_footprint
+    odom_frame: map
+    map_frame: slam_map
+    base_frame: f1tenth_1
     scan_topic: /autodrive/f1tenth_1/lidar
     use_map_saver: true
     mode: mapping #localization
