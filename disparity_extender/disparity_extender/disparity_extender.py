@@ -8,10 +8,10 @@ import numpy as np
 class FollowTheGap(Node):
     def __init__(self):
         super().__init__('follow_the_gap')        
-        self.disparity_thresh = 2.0
+        self.disparity_thresh = 1.0
         self.bubble_size = 1.0
-        self.max_speed = 0.5
-        self.min_speed = 0.3
+        self.max_speed = 0.3
+        self.min_speed = 0.0
         self.max_steering = 1.0
         
         self.scan_sub = self.create_subscription(LaserScan, '/autodrive/f1tenth_1/lidar', self.scan_callback, 10)
@@ -40,20 +40,17 @@ class FollowTheGap(Node):
     def scan_callback(self, msg):
         proc_ranges = self.preprocess(msg.ranges)
         
-        # Only look in front 120 degrees
-        mid = len(proc_ranges) // 2
-        window = len(proc_ranges) // 3
-        front_ranges = proc_ranges[mid-window:mid+window]
-        
-        best_idx = mid - window + np.argmax(front_ranges)
+        best_idx = np.argmax(proc_ranges)
         
         steering = np.clip(
-            msg.angle_min + best_idx * msg.angle_increment,
+            (msg.angle_min + best_idx * msg.angle_increment)*0.25,
             -self.max_steering,
             self.max_steering
         )
         
-        speed = self.max_speed * (1.0 - 0.7 * abs(steering) / self.max_steering)
+        speed = self.max_speed
+        if proc_ranges[best_idx] < 5:
+            speed *= proc_ranges[best_idx] / 5.0
         
         self.steering_pub.publish(Float32(data=float(steering)))
         self.throttle_pub.publish(Float32(data=float(speed)))
