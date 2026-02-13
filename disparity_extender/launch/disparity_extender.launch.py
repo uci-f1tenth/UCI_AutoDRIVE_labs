@@ -1,0 +1,12 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='disparity_extender',
+            executable='disparity_extender',
+            output='screen',
+        )
+    ])

@@ -86,8 +86,8 @@ Then, run the following commands, each in a different vscode terminal session, s
 ### Run ros_bridge
 
 ```bash
-source autodrive_f1tenth/install/setup.bash && source /opt/ros/kilted/setup.bash
 cd autodrive_f1tenth && colcon build && cd ..
+source autodrive_f1tenth/install/setup.bash && source /opt/ros/kilted/setup.bash
 ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py
 ```
 
@@ -103,6 +103,13 @@ ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```bash
 source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_online_async.yaml
+```
+
+### Run disparity extender (optional)
+```bash
+cd disparity_extender && colcon build && cd ..
+source disparity_extender/install/setup.bash && source /opt/ros/kilted/setup.bash
+ros2 launch disparity_extender disparity_extender.launch.py
 ```
 
 Then, open the AutoDRIVE Simulator, and click "Connect". The terminal session running `ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py` should say "Connected".
