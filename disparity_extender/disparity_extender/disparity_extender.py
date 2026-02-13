@@ -8,8 +8,8 @@ import numpy as np
 class FollowTheGap(Node):
     def __init__(self):
         super().__init__('follow_the_gap')        
-        self.disparity_thresh = 1.0
-        self.bubble_size = 1.0
+        self.disparity_thresh = 0.5
+        self.bubble_size = 0.3
         self.max_speed = 0.3
         self.min_speed = 0.0
         self.max_steering = 1.0

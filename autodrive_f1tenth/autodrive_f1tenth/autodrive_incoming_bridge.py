@@ -245,10 +245,10 @@ def publish_lidar_scan(lidar_scan_rate, lidar_range_array, lidar_intensity_array
     )
 
 
-def publish_camera_images(front_camera_image):
-    publishers["pub_front_camera"].publish(
-        create_image_msg(front_camera_image, "front_camera")
-    )
+# def publish_camera_images(front_camera_image):
+#     publishers["pub_front_camera"].publish(
+#         create_image_msg(front_camera_image, "front_camera")
+#     )
 
 
 #########################################################
@@ -347,12 +347,12 @@ def bridge(sid, data):
             np.asarray([0.2733, 0.0, 0.096]),
             np.asarray([0.0, 0.0, 0.0, 1.0]),
         )
-        broadcast_transform(
-            "front_camera",
-            "f1tenth_1",
-            np.asarray([-0.015, 0.0, 0.15]),
-            np.asarray([0, 0.0871557, 0, 0.9961947]),
-        )
+        # broadcast_transform(
+        #     "front_camera",
+        #     "f1tenth_1",
+        #     np.asarray([-0.015, 0.0, 0.15]),
+        #     np.asarray([0, 0.0871557, 0, 0.9961947]),
+        # )
         broadcast_transform(
             "front_left_wheel",
             "f1tenth_1",
@@ -400,11 +400,11 @@ def bridge(sid, data):
             data["V1 LIDAR Intensity Array"], dtype=float, sep=" "
         )
         publish_lidar_scan(lidar_scan_rate, lidar_range_array, lidar_intensity_array)
-        # Cameras
-        front_camera_image = np.asarray(
-            Image.open(BytesIO(base64.b64decode(data["V1 Front Camera Image"])))
-        )
-        publish_camera_images(front_camera_image)
+        # # Cameras
+        # front_camera_image = np.asarray(
+        #     Image.open(BytesIO(base64.b64decode(data["V1 Front Camera Image"])))
+        # )
+        # publish_camera_images(front_camera_image)
 
         ########################################################################
         # CONTROL COMMANDS
