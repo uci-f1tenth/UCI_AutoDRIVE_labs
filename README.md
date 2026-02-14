@@ -105,11 +105,11 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_online_async.yaml
 ```
 
-### Run disparity extender (optional)
+### Run wall follow (optional)
 ```bash
-cd disparity_extender && colcon build && cd ..
-source disparity_extender/install/setup.bash && source /opt/ros/kilted/setup.bash
-ros2 launch disparity_extender disparity_extender.launch.py
+cd wall_follow && colcon build && cd ..
+source wall_follow/install/setup.bash && source /opt/ros/kilted/setup.bash
+ros2 launch wall_follow wall_follow.launch.py
 ```
 
 Then, open the AutoDRIVE Simulator, and click "Connect". The terminal session running `ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py` should say "Connected".
