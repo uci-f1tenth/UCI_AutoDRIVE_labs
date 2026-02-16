@@ -78,7 +78,7 @@ import autodrive_f1tenth.config as config  # AutoDRIVE Ecosystem ROS 2 configura
 ################################################################################
 
 # Global declarations
-global autodrive_incoming_bridge, cv_bridge, publishers
+global autodrive_incoming_bridge, cv_bridge, publishers, tf_broadcaster
 global throttle_command, steering_command
 
 # Initialize vehicle control commands
@@ -191,19 +191,19 @@ def create_image_msg(image_array, frame_id):
 
 
 def broadcast_transform(child_frame_id, parent_frame_id, position_tf, orientation_tf):
-    tb = tf2_ros.TransformBroadcaster(autodrive_incoming_bridge)
+    global tf_broadcaster
     tf = TransformStamped()
     tf.header.stamp = autodrive_incoming_bridge.get_clock().now().to_msg()
     tf.header.frame_id = parent_frame_id
     tf.child_frame_id = child_frame_id
-    tf.transform.translation.x = position_tf[0]  # Pos X
-    tf.transform.translation.y = position_tf[1]  # Pos Y
-    tf.transform.translation.z = position_tf[2]  # Pos Z
-    tf.transform.rotation.x = orientation_tf[0]  # Quat X
-    tf.transform.rotation.y = orientation_tf[1]  # Quat Y
-    tf.transform.rotation.z = orientation_tf[2]  # Quat Z
-    tf.transform.rotation.w = orientation_tf[3]  # Quat W
-    tb.sendTransform(tf)
+    tf.transform.translation.x = position_tf[0]
+    tf.transform.translation.y = position_tf[1]
+    tf.transform.translation.z = position_tf[2]
+    tf.transform.rotation.x = orientation_tf[0]
+    tf.transform.rotation.y = orientation_tf[1]
+    tf.transform.rotation.z = orientation_tf[2]
+    tf.transform.rotation.w = orientation_tf[3]
+    tf_broadcaster.sendTransform(tf)
 
 
 #########################################################
@@ -425,36 +425,33 @@ def bridge(sid, data):
 
 
 def main():
-    # Global declarations
-    global autodrive_incoming_bridge, cv_bridge, publishers
+    global autodrive_incoming_bridge, cv_bridge, publishers, tf_broadcaster
     global throttle_command, steering_command
 
-    # ROS 2 infrastructure
-    rclpy.init()  # Initialize ROS 2 communication for this context
-    autodrive_incoming_bridge = rclpy.create_node(
-        "autodrive_incoming_bridge"
-    )  # Create ROS 2 node
-    qos_profile = QoSProfile(  # Ouality of Service profile
-        reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_RELIABLE,  # Reliable (not best effort) communication
-        history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,  # Keep/store only up to last N samples
-        depth=1,  # Queue (buffer) size/depth (only honored if the “history” policy was set to “keep last”)
+    rclpy.init()
+    autodrive_incoming_bridge = rclpy.create_node("autodrive_incoming_bridge")
+
+    qos_profile = QoSProfile(
+        reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+        history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+        depth=1,
     )
-    cv_bridge = CvBridge()  # ROS bridge object for opencv library to handle image data
+    cv_bridge = CvBridge()
+
     publishers = {
-        e.name: autodrive_incoming_bridge.create_publisher(e.type, e.topic, qos_profile)
-        for e in config.pub_sub_dict.publishers
-    }  # Publishers
+        e["name"]: autodrive_incoming_bridge.create_publisher(e["type"], e["topic"], qos_profile)
+        for e in config.pub_sub_dict["publishers"]
+    }
 
-    # Recursive operations while node is alive
+    tf_broadcaster = tf2_ros.TransformBroadcaster(autodrive_incoming_bridge)
+
     while rclpy.ok():
-        app = socketio.WSGIApp(sio)  # Create socketio WSGI application
-        pywsgi.WSGIServer(
-            ("", 4567), app, handler_class=WebSocketHandler
-        ).serve_forever()  # Deploy as a gevent WSGI server
-        rclpy.spin_once(autodrive_incoming_bridge)  # Spin the node once
+        app = socketio.WSGIApp(sio)
+        pywsgi.WSGIServer(("", 4567), app, handler_class=WebSocketHandler).serve_forever()
+        rclpy.spin_once(autodrive_incoming_bridge)
 
-    autodrive_incoming_bridge.destroy_node()  # Explicitly destroy the node
-    rclpy.shutdown()  # Shutdown this context
+    autodrive_incoming_bridge.destroy_node()
+    rclpy.shutdown()
 
 
 ################################################################################

@@ -95,9 +95,9 @@ def main():
     }  # Subscriber callback functions
     subscribers = [
         autodrive_outgoing_bridge.create_subscription(
-            e.type, e.topic, callbacks[e.topic], qos_profile
+            e["type"], e["topic"], callbacks[e["topic"]], qos_profile
         )
-        for e in config.pub_sub_dict.subscribers
+        for e in config.pub_sub_dict["subscribers"]
     ]  # Subscribers
     subscribers  # Avoid unused variable warning
 
