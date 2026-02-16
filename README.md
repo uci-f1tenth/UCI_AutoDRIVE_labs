@@ -86,7 +86,7 @@ Then, run the following commands, each in a different vscode terminal session, s
 ### Run ros_bridge
 
 ```bash
-cd autodrive_f1tenth && colcon build && cd ..
+cd src/autodrive_f1tenth && colcon build && cd ..
 source autodrive_f1tenth/install/setup.bash
 ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py
 ```
@@ -105,7 +105,7 @@ ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_onli
 
 ### Run wall follow (optional)
 ```bash
-cd wall_follow && colcon build && cd ..
+cd src/lab1/wall_follow && colcon build && cd ..
 source wall_follow/install/setup.bash
 ros2 launch wall_follow wall_follow.launch.py
 ```

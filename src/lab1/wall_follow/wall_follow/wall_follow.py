@@ -90,58 +90,6 @@ class WallFollow(Node):
         self.throttle_pub.publish(Float32(data=float(speed)))
 
 
-# # Initialize vehicle(s)
-# f1tenth_1 = autodrive.F1TENTH()
-# f1tenth_1.id = "V1"
-# steering_pid = PID(kp=1.0, kd=0.0, ki=0, setpoint=-0.6)
-
-# # Initialize the server
-# sio = socketio.Server()
-
-# # Flask (web) app
-# app = Flask(__name__)  # '__main__'
-
-
-# # Registering "connect" event handler for the server
-# @sio.on("connect")
-# def connect(sid, environ):
-#     print("Connected!")
-
-
-# # Registering "Bridge" event handler for the server
-# @sio.on("Bridge")
-# def bridge(sid, data):
-#     if data:
-#         f1tenth_1.parse_data(data)
-
-#         f1tenth_1.throttle_command = 0.2  # [-1, 1]
-
-#         f1tenth_1.steering_command = steering_pid.update(
-#             -get_distance_from_wall(f1tenth_1.lidar_range_array),
-#             1 / f1tenth_1.lidar_scan_rate,
-#         )
-
-#         ########################################################################
-
-#         json_msg = f1tenth_1.generate_commands()
-
-#         try:
-#             sio.emit("Bridge", data=json_msg)
-#         except Exception as exception_instance:
-#             print(exception_instance)
-
-
-# ################################################################################
-
-# if __name__ == "__main__":
-#     app = socketio.Middleware(
-#         sio, app
-#     )  # Wrap flask application with socketio's middleware
-#     eventlet.wsgi.server(
-#         eventlet.listen(("", 4567)), app
-#     )  # Deploy as an eventlet WSGI server
-
-
 def main(args=None):
     rclpy.init(args=args)
 
