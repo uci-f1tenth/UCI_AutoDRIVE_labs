@@ -105,9 +105,16 @@ ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_onli
 
 ### Run wall follow (optional)
 ```bash
-cd src/lab1/wall_follow && colcon build && cd ..
+cd  /workspaces/UCI_AutoDRIVE_labs/src/lab1/wall_follow && colcon build && cd ..
 source wall_follow/install/setup.bash
 ros2 launch wall_follow wall_follow.launch.py
+```
+
+### Run disparity_extender (optional)
+```bash
+cd /workspaces/UCI_AutoDRIVE_labs/src/lab2/disparity_extender && colcon build && cd ..
+source disparity_extender/install/setup.bash
+ros2 launch disparity_extender disparity_extender.launch.py
 ```
 
 Then, open the AutoDRIVE Simulator, and click "Connect". The terminal session running `ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py` should say "Connected".

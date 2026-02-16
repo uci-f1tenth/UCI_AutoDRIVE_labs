@@ -24,6 +24,8 @@ setup(
         ],
     },
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "disparity_extender = disparity_extender.disparity_extender:main"
+        ],
     },
 )
