@@ -87,28 +87,26 @@ Then, run the following commands, each in a different vscode terminal session, s
 
 ```bash
 cd autodrive_f1tenth && colcon build && cd ..
-source autodrive_f1tenth/install/setup.bash && source /opt/ros/$ROS_DISTRO/setup.bash
+source autodrive_f1tenth/install/setup.bash
 ros2 launch autodrive_f1tenth simulator_bringup_headless.launch.py
 ```
 
 ### Run Foxglove
 
 ```bash
-source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
 ### Run slam_toolbox
 
 ```bash
-source /opt/ros/$ROS_DISTRO/setup.bash
 ros2 launch slam_toolbox online_async_launch.py slam_params_file:=autodrive_online_async.yaml
 ```
 
 ### Run wall follow (optional)
 ```bash
 cd wall_follow && colcon build && cd ..
-source wall_follow/install/setup.bash && source /opt/ros/$ROS_DISTRO/setup.bash
+source wall_follow/install/setup.bash
 ros2 launch wall_follow wall_follow.launch.py
 ```
 
