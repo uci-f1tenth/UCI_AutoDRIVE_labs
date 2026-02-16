@@ -1,33 +1,14 @@
-#!/usr/bin/env python
-
-# Import libraries
-from typing import Any
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+from std_msgs.msg import Float32
 import numpy as np
-import socketio
-import eventlet
-from flask import Flask
-import autodrive
+from typing import Any
 
-################################################################################
-
-# Initialize vehicle(s)
-f1tenth_1 = autodrive.F1TENTH()
-f1tenth_1.id = "V1"
+# Constants
 min_angle: float = -np.pi / 2.0  # radians
 max_angle: float = np.pi / 2.0  # radians
-bubble_size: float = 80  # lidar points
-
-# Initialize the server
-sio = socketio.Server()
-
-# Flask (web) app
-app = Flask(__name__)  # '__main__'
-
-
-# Registering "connect" event handler for the server
-@sio.on("connect")
-def connect(sid, environ):
-    print("Connected!")
+bubble_size: int = 80  # lidar points
 
 
 def index_to_angle(index: int, num_points: int) -> float:
@@ -36,7 +17,7 @@ def index_to_angle(index: int, num_points: int) -> float:
     return angle
 
 
-def find_best_point(lidar_range_array: np.ndarray[Any]) -> int:
+def find_best_point(lidar_range_array: np.ndarray) -> int:
     best_index = 0
     best_min_distance = 0.0
 
@@ -57,46 +38,50 @@ def compute_speed(target_distance: float) -> float:
     return 1.0
 
 
-# Registering "Bridge" event handler for the server
-@sio.on("Bridge")
-def bridge(sid, data):
-    if data:
-        f1tenth_1.parse_data(data)
+class DisparityExtender(Node):
+    def __init__(self):
+        super().__init__("disparity_extender")
+        self.scan_sub = self.create_subscription(
+            LaserScan, "/autodrive/f1tenth_1/lidar", self.scan_callback, 10
+        )
+        self.steering_pub = self.create_publisher(
+            Float32, "/autodrive/f1tenth_1/steering_command", 10
+        )
+        self.throttle_pub = self.create_publisher(
+            Float32, "/autodrive/f1tenth_1/throttle_command", 10
+        )
 
-        lidar_range_array = f1tenth_1.lidar_range_array[
-            f1tenth_1.lidar_range_array.size // 6 : -f1tenth_1.lidar_range_array.size
-            // 6
-        ]
+    def scan_callback(self, msg):
+        lidar_range_array = np.array(msg.ranges)
+
+        sixth = lidar_range_array.size // 6
+        lidar_range_array = lidar_range_array[sixth:-sixth]
 
         best_point_index = find_best_point(lidar_range_array)
 
         best_point_angle = index_to_angle(best_point_index, lidar_range_array.size)
-        f1tenth_1.steering_command = best_point_angle / (np.pi / 2.0)
+        steering = best_point_angle / (np.pi / 2.0)
 
         target_distance = lidar_range_array[best_point_index]
-        f1tenth_1.throttle_command = compute_speed(target_distance)
-        print(
-            f"Steering Angle: {np.degrees(best_point_angle):.2f} degrees, "
-            f"Target Distance: {target_distance:.2f} m, "
-            f"Throttle Command: {f1tenth_1.throttle_command:.2f}"
-        )
+        speed = compute_speed(target_distance)
 
-        ########################################################################
-
-        json_msg = f1tenth_1.generate_commands()  # Generate vehicle 1 message
-
-        try:
-            sio.emit("Bridge", data=json_msg)
-        except Exception as exception_instance:
-            print(exception_instance)
+        self.steering_pub.publish(Float32(data=float(steering)))
+        self.throttle_pub.publish(Float32(data=float(speed)))
 
 
-################################################################################
+def main(args=None):
+    rclpy.init(args=args)
+
+    disparity_extender = DisparityExtender()
+
+    try:
+        rclpy.spin(disparity_extender)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        disparity_extender.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == "__main__":
-    app = socketio.Middleware(
-        sio, app
-    )  # Wrap flask application with socketio's middleware
-    eventlet.wsgi.server(
-        eventlet.listen(("", 4567)), app
-    )  # Deploy as an eventlet WSGI server
+    main()
